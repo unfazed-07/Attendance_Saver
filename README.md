@@ -1,10 +1,11 @@
 # Attendance Saver
 
-Attendance Saver is a full-stack student attendance planner. The project calendar is fixed in `sample_data/Session_Calendar.png`. Each student can upload their own `Schedule.xlsx` and attendance summary image; the timetable is parsed with `openpyxl`, and the attendance image is read through Azure AI Document Intelligence when configured. Both uploads can be corrected in Streamlit before analytics are saved.
+Attendance Saver is a full-stack student attendance planner. The project calendar is fixed in `sample_data/Session_Calendar.png`. Each student can upload their own `Schedule.xlsx` and attendance summary image; the timetable is parsed with `openpyxl`, and the attendance image is read through Azure AI Document Intelligence when configured. Both uploads can be corrected in the React interface before analytics are saved.
 
 ## Project folders
 
-- `frontend/streamlit_app.py` — Streamlit upload, review, dashboard, and what-if experience.
+- `frontend/src/` — React frontend for upload, review, dashboard, and what-if planning.
+- `frontend/streamlit_app.py` — Streamlit prototype retained for comparison and fallback.
 - `backend/app/` — FastAPI endpoints, SQLAlchemy models, parsers, Azure storage/OCR services, and attendance math.
 - `backend/tests/` — parser, calendar, and math unit tests.
 - `sample_data/` — fixed session calendar and example student uploads.
@@ -26,13 +27,17 @@ Start the API in the first terminal:
 uvicorn --app-dir backend --reload app.main:app
 ```
 
-Start Streamlit in a second terminal:
+Start the React frontend in a second terminal (Node.js 20.19 or newer):
 
 ```powershell
-streamlit run frontend/streamlit_app.py
+cd frontend
+npm install
+npm run dev
 ```
 
-Open `http://localhost:8501`. The API docs are at `http://localhost:8000/docs`. Azure SQL Database and Azure Blob Storage are required; the backend does not fall back to SQLite or local upload folders. Attendance OCR uses Azure Document Intelligence when configured; extracted rows can be reviewed and corrected before saving. Authentication is skipped in this prototype; the app creates an internal guest profile as needed.
+Open `http://localhost:5173`. The API docs are at `http://localhost:8000/docs`. Azure SQL Database and Azure Blob Storage are required; the backend does not fall back to SQLite or local upload folders. Attendance OCR uses Azure Document Intelligence when configured; extracted rows can be reviewed and corrected before saving. The prototype can still be started separately with `streamlit run frontend/streamlit_app.py` at `http://localhost:8501`.
+
+For a deployed React site, set `VITE_API_BASE_URL` to the backend's public HTTPS URL before building, and set `CORS_ALLOWED_ORIGINS` in the backend environment to the frontend's origin. Keep Azure SQL and Blob Storage secrets in the backend environment, never in the React app.
 
 Install test tools with `python -m pip install -r requirements-dev.txt`, then run the unit suite from the project root with `python -m pytest backend/tests`.
 
@@ -48,7 +53,7 @@ The backend seeds the 2026 odd-semester calendar on startup: Aug 10 through Dec 
 
 ## Azure setup when ready
 
-The application can use local development services or Azure services through environment variables. Keep real credentials in `.env`; `.env` is ignored by Git.
+The backend requires Azure SQL Database and Azure Blob Storage. Keep local credentials in `.env`; `.env` is ignored by Git. In deployment, add the backend settings to the hosting service's environment variables.
 
 1. **Azure AI Document Intelligence** — Create a Document Intelligence resource in the Azure portal. Open **Keys and Endpoint**, then set `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` and `AZURE_DOCUMENT_INTELLIGENCE_KEY` in `.env`. The attendance screenshot upload uses the `prebuilt-layout` model.
 2. **Azure Blob Storage** — Create a Storage Account and set its connection string as `AZURE_STORAGE_CONNECTION_STRING`. This setting is required. The app creates `student-timetables` and `attendance-summaries` containers when first used.

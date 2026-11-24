@@ -22,9 +22,14 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Attendance Saver API", version="0.1.0", lifespan=lifespan)
+allowed_origins = [
+    origin.strip()
+    for origin in get_settings().cors_allowed_origins.split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

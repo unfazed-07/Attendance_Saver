@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     azure_document_intelligence_endpoint: str = ""
     azure_document_intelligence_key: str = ""
     otp_signing_secret: str = ""
+    cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8501,http://127.0.0.1:8501"
     model_config = SettingsConfigDict(env_file=PROJECT_ROOT / ".env", env_file_encoding="utf-8", extra="ignore")
 
     @property

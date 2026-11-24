@@ -5,3 +5,6 @@ __pycache__/
 *.db
 uploads/
 .streamlit/secrets.toml
+node_modules/
+frontend/dist/
+frontend/.env.local
